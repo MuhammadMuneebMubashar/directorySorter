@@ -62,8 +62,7 @@ class Organizer:
         """
         self.directoryPath = self.__form_Path(directoryPath)
         self.extensions = []
-        self.success = 0
-        self.fail = 0
+        self.stats = dict(success=0, fail=0)
 
     def __form_Path(self, path: str) -> Path:
         """
@@ -208,7 +207,7 @@ class Organizer:
         try:
             shutil.move(file_path, directory_path)
 
-            self.success += 1
+            self.stats['success'] += 1
             return
 
         except PermissionError as e:
@@ -217,43 +216,5 @@ class Organizer:
         except OSError as e:
             print(f"OS error: {e}")
 
-        self.fail += 1
+        self.stats['fail'] += 1
 
-
-class App:
-    """
-    Main application layer for the file-organizing program.
-
-    The App class creates an Organizer, starts the organizing process,
-    and displays the final results.
-    """
-
-    def __init__(self, directory_path: str) -> None:
-        """
-        Initialize the application.
-
-        Args:
-            directory_path (str): Path of the directory to organize.
-        """
-        self.organizer = Organizer(directory_path)
-
-    def run(self) -> None:
-        """
-        Start the organizing process and display the results.
-
-        The actual file organization is delegated to the Organizer
-        instance.
-        """
-        self.organizer.organize_folder()
-
-        print(f"Files moved successfully: {self.organizer.success}")
-        print(f"Files failed to move: {self.organizer.fail}")
-
-
-if __name__ == "__main__":
-    # Ask the user for the directory that should be organized.
-    directory_path = input("Enter the directory path to organize: ")
-
-    # Create the application and start the organization process.
-    app = App(directory_path)
-    app.run()
