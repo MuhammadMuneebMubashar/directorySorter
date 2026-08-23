@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Set
 from shutil import move
-from .config import OrganizerConfig
+from DirectorySorter.core.config import OrganizerConfig
 
 @dataclass
 class OrganizationStats:
