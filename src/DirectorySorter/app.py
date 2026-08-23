@@ -1,4 +1,4 @@
-from .core import Organizer
+from .core.organizer import Organizer
 
 class App:
     """
