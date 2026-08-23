@@ -55,31 +55,38 @@ class Organizer:
     
     def _organize_file(self, file: Path) -> None:
         """Move a single file to its destination."""
-        ext = file.suffix[1:].lower() if file.suffix else "no_extension"
+        ext = self._extract_extension(file)
         dest_dir = self.config.target_directory / ext
-        
         try:
-            # Create destination directory
-            if not dest_dir.exists():
-                if not self.config.dry_run:
-                    dest_dir.mkdir(parents=True, exist_ok=True)
-                    self.logger.debug(f"Created directory: {dest_dir}")
-                self._processed_extensions.add(ext)
-            
-            # Move file
+            self._create_directory(dest_dir, ext)
             dest_path = dest_dir / file.name
-            if not self.config.dry_run:
-                move(str(file), str(dest_path))
-                self.logger.debug(f"Moved {file} → {dest_path}")
-            else:
-                self.logger.debug(f"[DRY-RUN] Would move {file} → {dest_path}")
-            
-            self.stats.success += 1
-            
+            self._move_file(file, dest_path)   
         except PermissionError as e:
             self._handle_error(file, "Permission denied", e)
         except Exception as e:
             self._handle_error(file, "Unexpected error", e)
+
+    def _extract_extension(self, file: Path) -> str:
+        """Extract the file extension, defaulting to 'Anonymous' if none."""
+        return file.suffix[1:].lower() if file.suffix else "Anonymous"
+
+    def _create_directory(self, dest_dir: Path, ext: str) -> None:
+        # Create destination directory
+        if not dest_dir.exists():
+             if not self.config.dry_run:
+                dest_dir.mkdir(parents=True, exist_ok=True)
+                self.logger.debug(f"Created directory: {dest_dir}")
+                self._processed_extensions.add(ext)
+
+    def _move_file(self, file: Path, dest_path: Path) -> None:
+         # Move the file to the destination directory
+         if not self.config.dry_run:
+            move(str(file), str(dest_path))
+            self.logger.debug(f"Moved {file} → {dest_path}")
+         else:
+           self.logger.debug(f"[DRY-RUN] Would move {file} → {dest_path}")            
+           self.stats.success += 1           
+        
     
     def _handle_error(self, file: Path, error_type: str, exception: Exception) -> None:
         """Handle file operation errors."""
